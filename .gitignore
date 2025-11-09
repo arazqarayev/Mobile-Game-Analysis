@@ -52,3 +52,24 @@ mau = df.groupby('Month')['Username'].nunique().rename('MAU').reset_index()
 mau.plot(x='Month', y='MAU', kind='bar', figsize=(8,4), title='Monthly Active Users (MAU)')
 
 
+## OYUNCULAR bahis atıyor mu, cashed out ediyor mu, profit alıyor mu
+#örnek: kullanıcı başına event bazlı funnel
+users = df.groupby('Username').agg(n_bets=('Bet','count'),
+                                   total_bet=('Bet','sum'),
+                                   total_cashed=('CashedOut','sum'),
+                                   total_profit=('Profit','sum')).reset_index()
+# kaç kullanıcının hiç cashed out yaptığı:
+(users['total_cashed']>0).mean() = 1.0
+
+# Retention oyuncular ilk oynadıktan sonra kaç gün aktif kalıyor?  ek sutun acilir, ve orda yazilir
+#cohort: kullanıcının ilk oyun tarihini bul, sonra retention tablosu oluştur
+first_date = df.groupby('Username')['Date'].min().rename('first_date').reset_index()
+df2 = df.merge(first_date, on='Username')
+df2['days_since_first'] = (pd.to_datetime(df2['Date']) - pd.to_datetime(df2['first_date'])).dt.days
+# pivot: cohort by first_date x days_since_first -> count unique users
+display(users.head(10))   # ilk 10 kullanıcıyı göster
+display(df2.head(10))     # cohort verisinin ilk satırları
+
+users.head(10)
+
+
